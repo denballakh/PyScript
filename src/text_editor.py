@@ -28,7 +28,7 @@ class TextEditor:
     panelFrame - фрейм панели кнопок/ button panel frame
     editFrame - фрейм всех полей для редактирования/ frame of redacting fields
     stateFrame - фрейм нижней строки/ frame of the lower string
-    textAreas - словарь {<название поля>:<tk объект для редактирования>}/ dictionary {<field name>:<tk object>}
+    textAreas - словарь {<тег поля>:<tk объект для редактирования>}/ dictionary {<field name>:<tk object>}
 
     """
 
@@ -62,7 +62,7 @@ class TextEditor:
         for key, val in getDictValByPath(allTypes, f'{block.classname}.edit').items():
             editing_type = val['type']
             header = val['header']
-            
+
             if editing_type == 'invisible':
                 pass
             elif editing_type == 'singleline':

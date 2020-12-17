@@ -1,21 +1,20 @@
 import tkinter as tk
 
-import ui
-import canvas
-import source_file
-import mouse_binding
-import text_editor
+from ui import UI
+from canvas import Canvas
+from source_file import SourceFile
+from mouse_binding import EventHandler
+from text_editor import TextEditor
 
 from settings import *
 from utils import *
 
 class App:
     def __init__(self):
-        self.SF = source_file.SourceFile(self)
-        self.mainWindow = tk.Tk()
-        self.canvas = canvas.Canvas(self)
-        canvas.canvas = self.canvas
+        self.root = tk.Tk()
 
-        ui.ui_init(self)
+        self.SF = SourceFile(self)
+        self.canvas = Canvas(self)
+        self.ui = UI(self)
 
-        self.mainWindow.mainloop()
+        self.root.mainloop()

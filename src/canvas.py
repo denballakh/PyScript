@@ -3,17 +3,17 @@ from block_manager import *
 class Canvas:
     def __init__(self, app, master=None):
         self.app = app
+
         self.master = master
         self.viewpos = Point(0, 0)
         self.viewzoom = 10
+
         self.handling = None
         self.touch = None
         self.link_creation = None
-        self.SF = None
 
     def draw(self, SF):
         """Рисует холст (блоки + линки)/ drawing canvas (blocks + links)"""
-        self.SF = SF
         # Очистка/Cleaning
         try:
             self.master.delete("all")  # TODO: убрать это и добавить изменение атрибутов существующих спрайтов.

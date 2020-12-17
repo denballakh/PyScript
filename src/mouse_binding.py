@@ -154,7 +154,7 @@ class EventHandler:
                 newpos = self.unscale(clickpos).round()
                 shift = newpos - self.canvas.handling.pos
                 self.canvas.handling.shift(
-                    shift, desc=descend_moving, shift_id=uniform(0, 1))
+                    shift, desc=self.descend_moving, shift_id=uniform(0, 1))
                 self.canvas.touch = clickpos
         self.redraw()
 

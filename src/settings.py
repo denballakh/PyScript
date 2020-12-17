@@ -38,8 +38,6 @@ openEditorAfterCreating = 1
 
 ban_impositions = 0
 
-descend_moving = 0
-
 default_language = 'python'
 
 if __name__ == "__main__":

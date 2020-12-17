@@ -167,10 +167,17 @@ class Point:
         return Point(self.x, self.y)
 
 class Logger:
-    def __init__(self, file: str):
+    def __init__(self):
         if __debug__:
+            self.fp = None
+            self.closed = 1
+
+    def open(self, file: str):
+        if __debug__:
+            if not self.closed: raise Exception('Opening already opened file!')
             self.fp = open(file, 'wt')
             self.closed = 0
+        return self
 
     def log(self, *msg):
         if __debug__:
@@ -180,14 +187,19 @@ class Logger:
                 print(*items)
             for item in items:
                 self.fp.write(item)
+        return self
 
     def close(self):
         if __debug__:
+            if not self.closed: raise Exception('Closing already closed file!')
             self.fp.close()
             self.closed = 1
+        return self
 
-logger = Logger('logs/########.log')
+    def __del__(self):
+        self.close()
 
+logger = Logger().open('logs/########.log')
 
 
 def json_load(path: str):
