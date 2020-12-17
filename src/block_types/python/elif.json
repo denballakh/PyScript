@@ -1,0 +1,25 @@
+{
+    "canvas": {
+		"image": "",
+		"tooltip": "",
+		"desc":"elif <1>"
+    },
+    "edit": {
+		"<desc>": {
+			"header": "",
+			"type": "invisible"
+		},
+		"<1>": {
+			"header": "condition",
+			"type": "singleline"
+		}
+    },
+    "build": {
+		"incTab": 1,
+		"hasPrefix": 1,
+		"prefix": "elif <1>:",
+		"hasPostfix": 0,
+		"postfix": "",
+		"multiline": 0
+    }
+}

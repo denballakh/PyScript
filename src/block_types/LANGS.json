@@ -1,0 +1,5 @@
+{
+	"default": "default/BLOCKS.json",
+	"python": "python/BLOCKS.json",
+	"rscript": "rscript/BLOCKS.json"
+}

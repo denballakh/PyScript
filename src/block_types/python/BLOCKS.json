@@ -1,0 +1,12 @@
+{
+	"class": "class.json",
+	"dict": "dict.json",
+	"dict_long_pair": "dict_long_pair.json",
+	"dict_pair": "dict_pair.json",
+	"elif": "elif.json",
+	"else": "else.json",
+	"for": "for.json",
+	"fun": "fun.json",
+	"if": "if.json",
+	"while": "while.json"
+}

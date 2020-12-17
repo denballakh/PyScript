@@ -1,0 +1,7 @@
+{
+	"elif": "elif.json",
+	"else": "else.json",
+	"for": "for.json",
+	"fun": "fun.json",
+	"if": "if.json"
+}

@@ -1,0 +1,29 @@
+{
+    "canvas": {
+		"image": "",
+		"tooltip": "",
+		"desc":"for <1> in <2>"
+    },
+    "edit": {
+		"<desc>": {
+			"header": "",
+			"type": "invisible"
+		},
+		"<1>": {
+			"header": "var",
+			"type": "singleline"
+		},
+		"<2>": {
+			"header": "range",
+			"type": "singleline"
+		}
+    },
+    "build": {
+		"incTab": 1,
+		"hasPrefix": 1,
+		"prefix": "for <1> in <2>:",
+		"hasPostfix": 0,
+		"postfix": "",
+		"multiline": 0
+    }
+}
