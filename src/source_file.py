@@ -18,19 +18,20 @@ class SourceFile:
 
     def __init__(self, app):
         self.app = app
+
         self.max_id = 0
         self.object_ids = {}
         self.fileName = ''
         self.buildName = ''
         self.data = 0
         self.lang = None
-        self.changeLang('python')
+        self.change_lang(default_language)
         self.wasEdited = False
 
-    def changeLang(self, lang):
+    def change_lang(self, lang):
         if self.lang == lang: return
         self.lang = lang
-        change_lang(lang)
+        load_lang(lang)
 
     def save(self, fileName='', save=1):
         """Сохраняет в файл/save into file"""
@@ -71,7 +72,7 @@ class SourceFile:
             logger.log(f'Bad subversion: {self.data}; setting subversion to {0}')
             self.data = 0
 
-        self.changeLang(obj["lang"])
+        self.change_lang(obj["lang"])
         self.buildName = obj["build_path"]
         blocks = obj["blocks"]
         for b in blocks:
@@ -79,7 +80,7 @@ class SourceFile:
             if block_type in allTypes:
                 Block(self, b, creating_type=1)
             else:
-                raise Exception(f'Unknown type of block: {block_type}! \nBlock: "{b}\nallTypes: {allTypes}"')
+                raise Exception(f'Unknown type of block: {block_type}! \nCurrent lang: {self.lang} \nBlock: "{b}\nallTypes: {allTypes}"')
 
             # line = str(b)
             # if len(line.strip()) == 0 or line.strip()[0] == ';':

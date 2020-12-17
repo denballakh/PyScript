@@ -5,7 +5,6 @@ import tkinter.font
 
 from settings import *
 from utils import *
-import canvas
 from block_manager import *
 
 

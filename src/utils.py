@@ -168,20 +168,23 @@ class Point:
 
 class Logger:
     def __init__(self, file: str):
-        self.fp = open(file, 'wt')
-        self.closed = 0
+        if __debug__:
+            self.fp = open(file, 'wt')
+            self.closed = 0
 
     def log(self, *msg):
-        if self.closed: raise Exception('Logging after closing file!')
-        strs = [str(item) for item in msg]
-        if debug_to_console:
-            print(*strs)
         if __debug__:
-            self.fp.write(*strs)
+            if self.closed: raise Exception('Logging after closing file!')
+            items = [str(item) for item in msg]
+            if debug_to_console:
+                print(*items)
+            for item in items:
+                self.fp.write(item)
 
     def close(self):
-        self.fp.close()
-        self.closed = 1
+        if __debug__:
+            self.fp.close()
+            self.closed = 1
 
 logger = Logger('logs/########.log')
 
@@ -189,9 +192,13 @@ logger = Logger('logs/########.log')
 
 def json_load(path: str):
     """Загружает json-объект из файла"""
-    fp = open(path, 'rt')
-    obj = json.load(fp)
-    fp.close()
+    try:
+        fp = open(path, 'rt')
+        obj = json.load(fp)
+        fp.close()
+    except:
+        logger.log(f'Error while reading ".json" file {path}. Returning None')
+        return None
     return obj
 
 
@@ -214,32 +221,8 @@ def placeButtons(master, buttons: list, side: str = 'left', fg=btnFG, bg=btnBG):
             master=master, text=btn[0], command=btn[1], fg=btnFG, bg=btnBG)
         b.pack(side=side, padx=3, pady=3)
 
-
-# def getSettingsByLang(lang):
-#     """Устанавливает настройки в связи с языком программирования/Set setting associated with programming language"""
-#     raise Exception
-#     res = {}
-#     for type in allTypes:
-#         res = dictMerge(
-#             res,
-#             createDictByPath(
-#                 f'{type}.build',
-#                 dictMerge(
-#                     getDictValByPath(allTypes, f'{type}.build.{lang}'), getDictValByPath(allTypes, f'{type}.build.*')
-#                 )
-#             )
-#         )
-#         for key, val in allTypes[type].items():
-#             if not (key in ['build']):
-#                 res = dictMerge(res, {type: {key: val}})
-#     return res
-
-
 def takeFirst(x, y): return x
-
-
 def takeSecond(x, y): return y
-
 
 def normalMerge(a, b, f=None):
     """Функция слияния двух элементов/ Function of merging two elements"""

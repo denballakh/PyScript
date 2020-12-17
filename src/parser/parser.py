@@ -2,8 +2,8 @@ from .lexer import TokenType
 from .ast import *
 
 
-def s(msg):
-    print(msg)
+def s(*msg):
+    print(*msg)
 
 
 class ParseError(RuntimeError):
@@ -23,7 +23,7 @@ class Parser(object):
             try:
                 statement = self._statement()
             except ParseError as err:
-                s.error(err.token, err.message)
+                s(err.token, err.message)
                 break
             else:
                 statements.append(statement)

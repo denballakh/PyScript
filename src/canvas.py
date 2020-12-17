@@ -101,6 +101,7 @@ class Canvas:
             p2 = self.scale(child.pos)
             left = block.classname
             right = child.classname
+            color = linkColors['_']
             for key in [f'{left}_{right}', f'{left}_', f'_{right}', f'_']:
                 if key in linkColors:
                     color = linkColors[key]

@@ -35,7 +35,7 @@ class EventHandler:
 
     def b1(self, click):
         """левая кнопка мыши/ left mouse button"""
-        logger.log(f'canvas view pos: {canvas.canvas.viewpos}')
+        logger.log(f'canvas view pos: {self.app.canvas.viewpos}')
         logger.log(f'left click: ({click.x},{click.y})')
         block = self.find_block(click)
         # установка начальной точки стрелки/setting of the initial arrow point
@@ -165,7 +165,7 @@ class EventHandler:
         block = self.find_block(click)
         # создание линка/Link creation
         if self.canvas.handling:
-            if block and (not block == self.canvas.handling) and (block not in canvas.canvas.handling.childs):
+            if block and (not block == self.canvas.handling) and (block not in self.app.canvas.handling.childs):
                 block_id = None
                 for obj in self.app.SF.object_ids:
                     if self.app.SF.object_ids[obj] == block:
@@ -173,7 +173,7 @@ class EventHandler:
                 if block_id is not None:
                     self.canvas.handling.addLink(block_id)
                     if cycle_checkout(self.app.SF, block):
-                        canvas.canvas.handling.delLink(block_id)
+                        self.app.canvas.handling.delLink(block_id)
                         logger.log('ban cycle!!!')
         self.canvas.touch = None
         self.canvas.link_creation = False
@@ -237,13 +237,13 @@ class EventHandler:
     def b3_ctrl(self, click):
         logger.log('left click + ctrl')
         self.descend_moving = 1
-        b3(click)
+        self.b3(click)
 
 
     def b3_ctrl_release(self, click):
         logger.log('left click + ctrl release')
         self.descend_moving = 0
-        b3_release(click)
+        self.b3_release(click)
 
 
 if __name__ == "__main__":

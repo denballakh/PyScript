@@ -1,18 +1,13 @@
-import tkinter as tk
-# import tkinter.font
-# import time
-
-import source_file
-import canvas
 from mouse_binding import *
-from settings import *
-from utils import *
+# from settings import *
+# from utils import *
 from block_manager import *
 
-canvasFrame = panelFrame = stateFrame = canvasX = mainWindow = ...
-app = ...
+# canvasFrame = panelFrame = stateFrame = canvasX = mainWindow = ...
+# app = ...
 
-def saveAs(root):
+def saveAs(app):
+    root = app.mainWindow
     """Обработчик кнопки save as handler of save as button"""
     fileName = tk.filedialog.SaveAs(
         root, filetypes=[("Visual script", ".vrc")]).show()
@@ -22,18 +17,20 @@ def saveAs(root):
         if not fileName.endswith('.vrc'):
             fileName += '.vrc'
         app.SF.save(fileName)
-        mainWindow.title(fileName)
+        app.mainWindow.title(fileName)
 
 
-def save(root):
+def save(app):
+    root = app.mainWindow
     """Обработчик кнопки save/ handler of save button"""
     if app.SF.fileName == '':
-        saveAs(root)
+        saveAs(app)
     else:
         app.SF.save(app.SF.fileName)
 
 
-def open(root):
+def open(app):
+    root = app.mainWindow
     """Обработчик кнопки open/ handler of open button"""
     fileName = tk.filedialog.Open(
         root, filetypes=[("Visual script", ".vrc")]).show()
@@ -43,19 +40,21 @@ def open(root):
         if not fileName.endswith('.vrc'):
             fileName += '.vrc'
         app.SF.open(fileName)
-        canvas.canvas.draw(app.SF)
-        mainWindow.title(fileName)
+        app.canvas.draw(app.SF)
+        app.mainWindow.title(fileName)
 
 
-def build(root):
+def build(app):
+    root = app.mainWindow
     """Обработчик кнопки build/ handler of build button"""
     if app.SF.buildName == '':
-        buildAs(root)
+        buildAs(app)
     else:
         app.SF.build(app.SF.buildName)
 
 
-def buildAs(root):
+def buildAs(app):
+    root = app.mainWindow
     """Обработчик кнопки build as/ handler of build as button"""
     ext = '*.*'  # '.b.'+app.SF.lang
     fileName = tk.filedialog.SaveAs(
@@ -69,7 +68,8 @@ def buildAs(root):
         app.SF.build(fileName)
 
 
-def close(root):
+def close(app):
+    root = app.mainWindow
     if app.SF.closeQ():
         del app.SF
         return 1
@@ -86,22 +86,25 @@ def close(root):
             return 1
 
 
-def newFile(root):
+def newFile(app):
     """Обработчик кнопки new file/ handler of new file button"""
+    root = app.mainWindow
     raise Exception('ui.newFile: bad way, fix it')
-    if close(root):
+    if close(app):
         app.SF = app.SourceFile()
-        canvas.canvas.draw(app.SF)
-        mainWindow.title('new file')
+        app.canvas.draw(app.SF)
+        app.mainWindow.title('new file')
 
 
-def closeWindow(root):
-    if close(root):
+def closeWindow(app):
+    root = app.mainWindow
+    if close(app):
         root.destroy()
 
 
 consoleWindow = None
-def openConsole(root):
+def openConsole(app):
+    root = app.mainWindow
     def close(window, entry):
         if entry.get():
             eval(str(entry.get()))
@@ -142,43 +145,43 @@ def ui_init(app_p):
     app.canvas.master = canvasX
 
     panelFrameButtons = [
-        ('New', lambda: newFile(root)),
-        ('Open...', lambda: open(root)),
-        ('Save', lambda: save(root)),
-        ('Save as...', lambda: saveAs(root)),
-        ('Build', lambda: build(root)),
-        ('Build as...', lambda: buildAs(root)),
+        ('New', lambda: newFile(app)),
+        ('Open...', lambda: open(app)),
+        ('Save', lambda: save(app)),
+        ('Save as...', lambda: saveAs(app)),
+        ('Build', lambda: build(app)),
+        ('Build as...', lambda: buildAs(app)),
         ('Build log', lambda: app.SF.build('', 0)),
     ] + __debug__ * [
             ('Canvas redraw', lambda: app.canvas.draw(app.SF)),
             ('Save log', lambda: app.SF.save('', 0)),
-            ('Console', lambda: openConsole(root)),
-            ('Hard exit', lambda: root.destroy()),
+            ('Console', lambda: openConsole(app)),
+            ('Hard exit', lambda: app.mainWindow.destroy()),
         ]
-    root.protocol("WM_DELETE_WINDOW", lambda: closeWindow(root))
+    root.protocol("WM_DELETE_WINDOW", lambda: closeWindow(app))
 
     placeButtons(panelFrame, panelFrameButtons)
 
     mainMenu_tree = {
         "File": {
-            "New file": lambda: newFile(root),
-            "Open file...": lambda: open(root),
-            "Save file": lambda: save(root),
-            "Save file as...": lambda: lambda: saveAs(root),
+            "New file": lambda: newFile(app),
+            "Open file...": lambda: open(app),
+            "Save file": lambda: save(app),
+            "Save file as...": lambda: lambda: saveAs(app),
         },
         "Build": {
-            "Build": lambda: build(root),
-            "Build as...": lambda: buildAs(root),
+            "Build": lambda: build(app),
+            "Build as...": lambda: buildAs(app),
         },
-        "Exit": lambda: closeWindow(root),
+        "Exit": lambda: closeWindow(app),
     }
     if __debug__:
         mainMenu_tree["Debug"] = {
             "Hard exit": lambda: root.destroy(),
             "Lang": {
-                "-> python": lambda: change_lang("python"),
-                "-> rscript": lambda: change_lang("rscript"),
-                "-> default": lambda: change_lang("default"),
+                "-> python": lambda: app.SF.change_lang("python"),
+                "-> rscript": lambda: app.SF.change_lang("rscript"),
+                "-> default": lambda: app.SF.change_lang("default"),
             },
         }
 

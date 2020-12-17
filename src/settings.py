@@ -40,5 +40,7 @@ ban_impositions = 0
 
 descend_moving = 0
 
+default_language = 'python'
+
 if __name__ == "__main__":
     print("This module is not for direct call!")
