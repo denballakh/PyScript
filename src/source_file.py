@@ -1,9 +1,12 @@
-import text_editor
+from block import Block
+from block_manager import load_lang, allTypes
+
 from settings import *
 from utils import *
-from block_manager import *
-from block import Block
 
+__all__ = [
+    'SourceFile',
+]
 
 class SourceFile:
     """
@@ -82,14 +85,6 @@ class SourceFile:
             else:
                 raise Exception(f'Unknown type of block: {block_type}! \nCurrent lang: {self.lang} \nBlock: "{b}\nallTypes: {allTypes}"')
 
-            # line = str(b)
-            # if len(line.strip()) == 0 or line.strip()[0] == ';':
-            #     continue  # пустые строки и строки-комментарии пропускаем/ leave empty and comment strings
-            # type = literal_eval(line)["type"]
-            # if type in allTypes:
-            #     Block(self, line.strip(), creating_type=1)
-            # else:
-
     def parents(self, block_id):
         """Возвращает id всех блоков, для которых данный является дочерним/ return ids of all child blocks"""
         res = []
@@ -126,3 +121,5 @@ class SourceFile:
             del block
         self.object_ids = {}
 
+if __name__ == '__main__':
+    print('This module is not for direct call!')

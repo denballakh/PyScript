@@ -1,11 +1,16 @@
 import tkinter as tk
 from random import uniform
 
-from settings import *
-from utils import *
 from block import Block
 import canvas
-from block_manager import *
+# from block_manager import *
+
+from settings import *
+from utils import *
+
+__all__ = [
+    'EventHandler',
+]
 
 class EventHandler:
     def __init__(self, app, tkCanvas, canvas):
@@ -35,8 +40,7 @@ class EventHandler:
 
     def b1(self, click):
         """левая кнопка мыши/ left mouse button"""
-        logger.log(f'canvas view pos: {self.app.canvas.viewpos}')
-        logger.log(f'left click: ({click.x},{click.y})')
+        logger.log(f'(+  ): ({click.x:4},{click.y:4})')
         block = self.find_block(click)
         # установка начальной точки стрелки/setting of the initial arrow point
         if block:
@@ -49,7 +53,7 @@ class EventHandler:
 
     def b2(self, click):
         """колесо/ wheel"""
-        logger.log(f'wheel click: ({click.x},{click.y})')
+        logger.log(f'( + ): ({click.x:4},{click.y:4})')
         clickpos = Point(click.x, click.y)
         block = self.find_block(clickpos)
         # удаление блока/block deletion
@@ -78,7 +82,7 @@ class EventHandler:
 
 
     def b3(self, click):
-        logger.log(f'right click: ({click.x},{click.y})')
+        logger.log(f'(  +): ({click.x:4},{click.y:4})')
         block = self.find_block(click)
         # установка перемещаемого блока/set of moving block
         if block:
@@ -90,7 +94,7 @@ class EventHandler:
 
     def b1_double(self, click):
         """левый двойной щелок/ left doubleclick"""
-        logger.log(f'left double click: ({click.x},{click.y})')
+        logger.log(f'(:  ): ({click.x:4},{click.y:4})')
         block = self.find_block(click)
         clickpos = Point(click.x, click.y)
         # открытие редактора/opening redactor
@@ -111,21 +115,21 @@ class EventHandler:
 
     def b2_double(self, click):
         """двойной щелчок колесом/wheel doubleclick"""
-        logger.log(f'wheel double click: ({click.x},{click.y})')
+        logger.log(f'( : ): ({click.x:4},{click.y:4})')
         ...
         self.redraw()
 
 
     def b3_double(self, click):
         """правый двойной щелчок/ right doubleclick"""
-        logger.log(f'right double click: ({click.x},{click.y})')
+        logger.log(f'(  :): ({click.x:4},{click.y:4})')
 
         self.redraw()
 
 
     def b1_motion(self, click):
         """движение с зажатой левой клавишей/ movement with pressed left button"""
-        logger.log(f'left motion: ({click.x},{click.y})')
+        logger.log(f'(^  ): ({click.x:4},{click.y:4})')
         # сдвиг конца стрелки/ arrow end movement
         if self.canvas.handling:
             self.canvas.link_creation = Point(click.x, click.y)
@@ -134,14 +138,14 @@ class EventHandler:
 
     def b2_motion(self, click):
         """движение с зажатым колесом/ movement with pressed wheel"""
-        logger.log(f'wheel motion:({click.x},{click.y})')
+        logger.log(f'( ^ ): ({click.x:4},{click.y:4})')
         ...
         self.redraw()
 
 
     def b3_motion(self, click):
         """движение с зажатой правой клавишей/ movement with pressed right button"""
-        logger.log(f'right motion:({click.x},{click.y})')
+        logger.log(f'(  ^): ({click.x:4},{click.y:4})')
         # сдвиг блоков/block movement
         if self.canvas.handling:
             clickpos = Point(click.x, click.y)
@@ -161,7 +165,7 @@ class EventHandler:
 
     def b1_release(self, click):
         """отпускание левой клавиши/ release of the left button"""
-        logger.log(f'left release:({click.x},{click.y})')
+        logger.log(f'(-  ): ({click.x:4},{click.y:4})')
         block = self.find_block(click)
         # создание линка/Link creation
         if self.canvas.handling:
@@ -174,7 +178,7 @@ class EventHandler:
                     self.canvas.handling.addLink(block_id)
                     if cycle_checkout(self.app.SF, block):
                         self.app.canvas.handling.delLink(block_id)
-                        logger.log('ban cycle!!!')
+                        logger.log('Cycle ban')
         self.canvas.touch = None
         self.canvas.link_creation = False
         if self.canvas.handling:
@@ -185,14 +189,14 @@ class EventHandler:
 
     def b2_release(self, click):
         """отпускание колеса/ release of the wheel"""
-        logger.log(f'wheel release:({click.x},{click.y})')
+        logger.log(f'( - ): ({click.x:4},{click.y:4})')
         ...
         self.redraw()
 
 
     def b3_release(self, click):
         """отпускание правой клавиши/ release of the right button"""
-        logger.log(f'right release:({click.x},{click.y})')
+        logger.log(f'(  -): ({click.x:4},{click.y:4})')
         # сброс таскаемого блока
         self.canvas.touch = None
         if self.canvas.handling:
@@ -206,6 +210,8 @@ class EventHandler:
 
     def wheel(self, click):
         click.d = 0
+
+        logger.log(f'Old view pos: {self.canvas.viewpos}')
         if hasattr(click, 'num') and click.num != '??':
             if click.num == 4:
                 click.d = 1
@@ -217,11 +223,11 @@ class EventHandler:
         elif hasattr(click, 'delta'):
             click.d = click.delta
             if click.d % 120 == 0:
-                click.d /= 120  # for Windows
+                click.d /= 120
         else:
             print(f'Unknown mouse wheel event: {click}')
             return
-        logger.log(f'wheel:({click.x},{click.y}) {click.d}')
+        logger.log(f'( @ ): ({click.x:4},{click.y:4}) {round(click.d):2}')
         k = e ** (zoomSpeed * click.d)
 
         clickpos = Point(click.x, click.y)
@@ -231,17 +237,18 @@ class EventHandler:
         SF_shift = SF_pos_new - SF_pos_old
         self.canvas.viewpos -= SF_shift
 
+        logger.log(f'Mew view pos: {self.canvas.viewpos}')
         self.redraw()
 
 
     def b3_ctrl(self, click):
-        logger.log('left click + ctrl')
+        logger.log('(  +)+ctrl')
         self.descend_moving = 1
         self.b3(click)
 
 
     def b3_ctrl_release(self, click):
-        logger.log('left click + ctrl release')
+        logger.log('(  -)+ctrl')
         self.descend_moving = 0
         self.b3_release(click)
 

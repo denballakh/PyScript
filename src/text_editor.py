@@ -7,6 +7,9 @@ from settings import *
 from utils import *
 from block_manager import *
 
+__all__ = [
+    'TextEditor',
+]
 
 def getText(textArea):
     """Возвращает содержимое поля/ Return field containment"""

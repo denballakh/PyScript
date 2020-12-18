@@ -1,7 +1,13 @@
-from mouse_binding import *
-# from settings import *
-# from utils import *
-from block_manager import *
+import tkinter as tk
+
+from mouse_binding import EventHandler
+from settings import *
+from utils import *
+# from block_manager import all
+
+__all__ = [
+    'UI',
+]
 
 class UI:
     def __init__(self, app):
@@ -79,8 +85,6 @@ class UI:
             logger.log('Cannot zoom window (non-Windows OS)')
 
         eh = EventHandler(app, canvasX, app.canvas)
-        # Указываем нашему холсту на tk.Canvas, на котором он будет рисовать/ assign canvas to tk.canvas to draw on
-        # assign_canvas_frame(canvasFrame)
 
         app.canvas.draw(app.SF)
         app.root.title('new file')

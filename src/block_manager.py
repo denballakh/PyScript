@@ -76,14 +76,14 @@ def load_lang_blocks(lang):
 
 def load_lang(lang):
     global allTypes
-    logger.log('Old blocks: ', allTypes)
-    allTypes.clear()
     logger.log(f'changing lang to {lang}')
+    logger.log('#old blocks: ', len(allTypes))
+    allTypes.clear()
     lng = load_lang_blocks(lang)
     df = load_lang_blocks('default')
     for k, v in dictMerge(lng, df).items():
         allTypes[k] = v
-    logger.log('New blocks: ', allTypes)
+    logger.log('#new blocks: ', len(allTypes))
 
 
 langs = json_load('block_types/LANGS.json')

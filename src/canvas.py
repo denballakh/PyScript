@@ -1,4 +1,12 @@
-from block_manager import *
+import tkinter as tk
+
+from block_manager import linkColors, drawColors
+from utils import *
+from settings import *
+
+__all__ = [
+    'Canvas',
+]
 
 class Canvas:
     def __init__(self, app, master=None):

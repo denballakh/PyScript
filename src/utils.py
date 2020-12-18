@@ -5,9 +5,28 @@ import tkinter as tk
 
 from settings import *
 
+__all__ = [
+    'Point',
+    'Logger',
+
+    'json_load',
+    'createMenu',
+    'placeButtons',
+    'dictMerge',
+    'getDictValByPath',
+    'distance_to_line',
+    'near_to_line',
+    'cycle_checkout',
+    'find_block_',
+
+    'logger',
+    'e',
+    'pi',
+]
 
 class Point:
     """Класс точки-вектора/ class of a point-vector"""
+    __slots__ = ['x', 'y']
 
     def __init__(self, x=0, y=0):
         self.x = x
@@ -81,6 +100,9 @@ class Point:
             return False
         return a.x < b.x
 
+    def __bool__(self):
+        return abs(self.x)>1e-5 or abs(self.y)>1e-5
+
     def abs(self):
         """Длина вектора/vector length"""
         return (self.x ** 2 + self.y ** 2) ** 0.5
@@ -111,6 +133,20 @@ class Point:
 
     def dist(self, other):
         return ((self.x - other.x) ** 2 + (self.y - other.y) ** 2) ** 0.5
+
+    def dist1(self, other):
+        return abs(self.x - other.x) + abs(self.y - other.y)
+
+    def dist2(self, other):
+        return max(abs(self.x - other.x), abs(self.y - other.y))
+
+    def abs1(self):
+        """Длина вектора/vector length"""
+        return abs(self.x) + abs(self.y)
+
+    def abs2(self):
+        """Длина вектора/vector length"""
+        return max(abs(self.x), abs(self.y))
 
     def setInPlace(self, x, y):
         self.x = x
@@ -347,30 +383,25 @@ def cycle_checkout(SF, block):
 
 def find_block_(click, canvas, SF, mode=1):
     """Находит блок по позиции клика/ Find block by its position"""
+    logger.log(f'Finding block in pos: ({click.x:4},{click.y:4})')
 
-    # def scale(pos):
-    #     return canvas.scale(pos)
+    def scale(pos):
+        return canvas.scale(pos)
 
     def unscale(pos):
         return canvas.unscale(pos)
 
     clickpos = Point(click.x, click.y)
     sfclick = unscale(clickpos)
-    logger.log(f'handling click: {clickpos}')
-    if mode == 0:  # находжение по радиусу блока
-        for _, block in SF.object_ids.items():
-            # logger.log('checking block: ' + block.convertToStr())
-            distance = (block.pos - sfclick).abs()
-            if distance <= blockR:
-                logger.log(f'block found: {block.convertToStr()}')
-                return block
-    elif mode == 1:  # нахождение по клетке клика
-        for _, block in SF.object_ids.items():
-            # logger.log('checking block: ' + block.convertToStr())
-            d = block.pos - sfclick
-            if abs(d.x) < 0.5 and abs(d.y) < 0.5:
-                logger.log(f'block found: {block.convertToStr()}')
-                return block
+
+    for _, block in SF.object_ids.items():
+        d = block.pos - sfclick
+        if sfclick.dist2(block.pos) <= 0.5:
+            logger.log(f'Block found: {block.convertToStr()}')
+            return block
+
+    logger.log(f'No blocks found')
+    return None
 
 
 # Число Эйлера и число пи/ Euler's number and pi number

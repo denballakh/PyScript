@@ -9,6 +9,10 @@ from text_editor import TextEditor
 from settings import *
 from utils import *
 
+__all__ = [
+    'App',
+]
+
 class App:
     def __init__(self):
         self.root = tk.Tk()
@@ -18,3 +22,6 @@ class App:
         self.ui = UI(self)
 
         self.root.mainloop()
+
+if __name__ == '__main__':
+    print('This module is not for direct call!')
