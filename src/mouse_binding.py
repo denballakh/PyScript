@@ -157,8 +157,10 @@ class EventHandler:
             if not block:
                 newpos = self.unscale(clickpos).round()
                 shift = newpos - self.canvas.handling.pos
-                self.canvas.handling.shift(
-                    shift, desc=self.descend_moving, shift_id=uniform(0, 1))
+                if shift:
+                    logger.log(f' --> : {shift}')
+                    self.canvas.handling.shift(
+                        shift, desc=self.descend_moving, shift_id=uniform(0, 1))
                 self.canvas.touch = clickpos
         self.redraw()
 
@@ -211,7 +213,7 @@ class EventHandler:
     def wheel(self, click):
         click.d = 0
 
-        logger.log(f'Old view pos: {self.canvas.viewpos}')
+        # logger.log(f'Old view pos: {self.canvas.viewpos.round()}')
         if hasattr(click, 'num') and click.num != '??':
             if click.num == 4:
                 click.d = 1
@@ -233,11 +235,12 @@ class EventHandler:
         clickpos = Point(click.x, click.y)
         SF_pos_old = self.unscale(clickpos)
         self.canvas.viewzoom *= k
+        self.canvas.viewzoom = min(max(self.canvas.viewzoom, canvas_minzoom), canvas_maxzoom)
         SF_pos_new = self.unscale(clickpos)
         SF_shift = SF_pos_new - SF_pos_old
         self.canvas.viewpos -= SF_shift
 
-        logger.log(f'Mew view pos: {self.canvas.viewpos}')
+        # logger.log(f'New view pos: {self.canvas.viewpos.round()}')
         self.redraw()
 
 

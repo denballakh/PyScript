@@ -1,44 +1,90 @@
+# from utils import json_load
+import json
+def json_load(path: str):
+    """Загружает json-объект из файла"""
+    fp = open(path, 'rt')
+    obj = json.load(fp)
+    fp.close()
+
+    return obj
+
+__all__ = [
+    'btnBG',
+    'textBG',
+    'panelBG',
+    'spaceBG',
+    'stateBG',
+    'btnFG',
+    'textFG',
+    'panelFG',
+    'spaceFG',
+    'stateFG',
+    'blockR',
+    'chosen_R',
+    'link_width',
+    'font_size',
+    'nearToLine',
+    'zoomSpeed',
+    'arrow_width',
+    'arrow_length',
+    'debug_to_console',
+    'profile',
+    'openEditorAfterCreating',
+    'ban_impositions',
+    'default_language',
+    'canvas_minzoom',
+    'canvas_maxzoom'
+]
+
+obj = json_load('settings.json')
+
 # Цвета различных элементов/Colors of different elements
-btnBG = '#202020'
-btnFG = '#ffffff'
+cs = obj['color_scheme']
+bg = cs['BG']
+fg = cs['FG']
+btnBG = bg['btn']
+textBG = bg['text']
+panelBG = bg['panel']
+spaceBG = bg['space']
+stateBG = bg['state']
 
-textBG = '#606060'
-textFG = '#ffffff'
-
-panelBG = '#404040'
-panelFG = '#ffffff'
-
-spaceBG = '#606060'
-spaceFG = '#ffffff'
-
-stateBG = '#404040'
-stateFG = '#ffffff'
+btnFG = fg['btn']
+textFG = fg['text']
+panelFG = fg['panel']
+spaceFG = fg['space']
+stateFG = fg['state']
+del cs, bg, fg
 
 # Радиус блока (1 - размер клетки)/Block radius, 1 is a cell size
-blockR = 0.4
-chosen_R = 0.6
-link_width = 0.06
-font_size = 0.20
+blockR = obj['blockR']
+chosen_R = obj['chosen_R']
+link_width = obj['link_width']
+font_size = obj['font_size']
 # Расстояние на котором нажатие мышью удаляет линию/Distance on which mouse click deletes the link
-nearToLine = 0.05
+nearToLine = obj['nearToLine']
 # Чуствительность зума колесом мыши/Sensitiveness of zoom by wheel
-zoomSpeed = 0.1
+zoomSpeed = obj['zoomSpeed']
 # ширина стрелки/ arrow width
-arrow_width = 0.15
+arrow_width = obj['arrow_width']
 # длина стрелки/ arrow length
-arrow_length = 0.2
+arrow_length = obj['arrow_length']
 
 # Флаг дебага/Debug flag
-debug_to_console = 1 and __debug__
+debug_to_console = obj['debug_to_console'] and __debug__
 
 # Флаг профилирования/Profiling flag
-profile = 0 and __debug__
+profile = obj['profile'] and __debug__
 
-openEditorAfterCreating = 1
+openEditorAfterCreating = obj['openEditorAfterCreating']
 
-ban_impositions = 0
+ban_impositions = obj['ban_impositions']
 
-default_language = 'python'
+default_language = obj['default_language']
+
+canvas_minzoom = 0
+canvas_maxzoom = 100
+
+del obj
 
 if __name__ == "__main__":
     print("This module is not for direct call!")

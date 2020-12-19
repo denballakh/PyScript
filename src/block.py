@@ -184,9 +184,6 @@ class Block:
         return self.SF.parents(self.id)
 
     def shift(self, shift, desc=0, shift_id=0):
-        if not shift:
-            logger.log('zero shift', shift)
-            return
         self.SF.wasEdited = True
         if not desc:
             self.pos += shift

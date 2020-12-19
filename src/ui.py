@@ -42,7 +42,7 @@ class UI:
             ('Build as...', lambda: self.buildAs()),
             ('Build log', lambda: app.SF.build('', 0)),
         ] + __debug__ * [
-                ('Canvas redraw', lambda: app.canvas.draw(app.SF)),
+                ('Canvas redraw', lambda: app.canvas.redraw(app.SF)),
                 ('Save log', lambda: app.SF.save('', 0)),
                 ('Console', lambda: self.openConsole()),
                 ('Hard exit', lambda: app.root.destroy()),
@@ -201,7 +201,7 @@ class UI:
         app = self.app
         """Обработчик кнопки new file/ handler of new file button"""
         root = app.root
-        raise Exception('ui.newFile: bad way, fix it')
+        raise NotImplementedError('ui.newFile: bad way, fix it')
         if self.close(app):
             app.SF = app.SourceFile()
             app.canvas.draw(app.SF)

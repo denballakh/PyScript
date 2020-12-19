@@ -1,0 +1,35 @@
+{
+	"color_scheme": {
+		"BG": {
+			"btn": "#202020",
+			"text": "#606060",
+			"panel": "#404040",
+			"space": "#606060",
+			"state": "#404040"
+		},
+		"FG": {
+			"btn": "#ffffff",
+			"text": "#ffffff",
+			"panel": "#ffffff",
+			"space": "#ffffff",
+			"state": "#ffffff"
+		}
+	},
+	
+	"blockR": 0.8,
+	"chosen_R": 0.4,
+	"link_width": 0.06,
+	"font_size": 0.20,
+	"nearToLine": 0.05,
+	"zoomSpeed": 0.1,
+	"arrow_width": 0.15,
+	"arrow_length": 0.2,
+
+	"debug_to_console": 1,
+	"profile": 0,
+
+	"openEditorAfterCreating": 1,
+	"ban_impositions": 0,
+
+	"default_language": "python"
+}
