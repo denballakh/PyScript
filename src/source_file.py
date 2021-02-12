@@ -3,6 +3,7 @@ from block_manager import load_lang, allTypes
 
 from settings import *
 from utils import *
+import json
 
 __all__ = [
     'SourceFile',

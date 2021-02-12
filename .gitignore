@@ -19,3 +19,5 @@ examples
 *.log
 *.txt
 
+*.bat
+*.exe

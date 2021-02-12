@@ -2,9 +2,10 @@ import tkinter as tk
 
 from PIL import Image, ImageTk
 
-from block_manager import linkColors, drawColors
+from block_manager import linkColors
 from utils import *
 from settings import *
+from cache import Cache
 
 __all__ = [
     'Canvas',
@@ -12,33 +13,187 @@ __all__ = [
 
 class Drawable:
     def __init__(self, canvas):
-        self.canvas = canvas
-        pass
+        raise Exception
 
-    def draw(self):
-        pass
+    def info(self):
+        raise Exception
 
-    def config(self):
-        pass
+    def __hash__(self):
+        # print('hash')
+        return hash(self.info())
 
-    def coords(self):
-        pass
+    def __eq__(self, other):
+        # print('eq')
+        return self.info() == other.info()
+
+    def update(self):
+        raise Exception
+
+    def checkblock(self, block):
+        if not hasattr(block, 'SF'):
+            self.deleted = 1
+            return True
+        return block.id in self.canvas.app.SF.object_ids
 
     def delete(self):
-        pass
+        self.canvas.master.delete(self.id)
+        self.deleted = 1
+
+    def __del__(self):
+        self.delete()
+
+class DrawableBlock(Drawable):
+    tag = 'block'
+
+    def __init__(self, canvas, block):
+        self.canvas = canvas
+        self.deleted = 0
+        self.block = block
+        self.id = canvas.master.create_image(
+            0, 0,
+            image=None,
+            tag=self.tag,
+        )
+        self.update()
+
+    def info(self): return f'block_{self.block.id}'
+
+    def update(self):
+        block = self.block
+        canvas = self.canvas
+        cache = canvas.cache
+        x, y = canvas.scale(block.pos).tuple()
+        ct = block.classname
+        imgsize = max(round(canvas.viewzoom*blockR), 1)
+
+        if not self.checkblock(block):
+            self.delete()
+            return
+
+        origimage = cache.get(f'blockimage_{ct}', lambda: Image.open(f'images/{ct}.png'))
+
+        photo_sel = cache.get(f'blockimage_{ct}_{imgsize}_sel', lambda: ImageTk.PhotoImage(
+                origimage.resize(
+                    [round(1.2*imgsize)]*2,
+                    resample=Image.HAMMING,
+                )
+            )
+        )
+        photo_normal = cache.get(f'blockimage_{ct}_{imgsize}', lambda: ImageTk.PhotoImage(
+                origimage.resize(
+                    [imgsize, imgsize],
+                    resample=Image.HAMMING,
+                )
+            )
+        )
+
+        canvas.master.itemconfig(
+            self.id,
+            image=photo_sel if block == canvas.handling else photo_normal,
+            activeimage=photo_sel,
+            state='normal',
+            anchor='center',
+        )
+        canvas.master.coords(self.id, [x, y])
+
+
+
+
+class DrawableLink(Drawable):
+    tag = 'link'
+
+    def __init__(self, canvas, begin, end):
+        self.canvas = canvas
+        self.deleted = 0
+        self.begin = begin
+        self.end = end
+        self.id = canvas.master.create_line(
+            0, 0, 0, 0,
+            tag=self.tag,
+        )
+        self.update()
+
+    def info(self): return f'link_{self.begin.id}_{self.end.id}'
+
+    def update(self):
+        canvas = self.canvas
+        cache = canvas.cache
+
+        thickness = link_width * canvas.viewzoom
+
+        begin = self.begin
+        end = self.end
+
+        if not self.checkblock(begin) or not self.checkblock(end):
+            self.delete()
+            return
+
+
+        p1 = canvas.scale(begin.pos)
+        p2 = canvas.scale(end.pos)
+
+        left = begin.classname
+        right = end.classname
+        color = None
+        for key in [f'{left}_{right}', f'_{right}', f'{left}_', f'_']:
+            if key in linkColors:
+                color = linkColors[key]
+                break
+
+
+        canvas.master.itemconfig(
+            self.id,
+            fill=color,
+            width=thickness,
+            capstyle='round',
+            arrow='last',
+            arrowshape=(0.4 * canvas.viewzoom, 0.5 * canvas.viewzoom, 0.15 * canvas.viewzoom)
+        )
+        canvas.master.coords(self.id, *[*p1.tuple(), *p2.tuple()])
+
+
+class DrawableText(Drawable):
+    tag = 'block_text'
+
+    def __init__(self, canvas, block):
+        self.canvas = canvas
+        self.deleted = 0
+        self.block = block
+        self.id = canvas.master.create_text(
+            0, 0,
+            tag=self.tag,
+        )
+        self.update()
+
+    def info(self): return f'text_{self.block.id}'
+
+    def update(self):
+        # logger.log('updating text')
+        block = self.block
+        canvas = self.canvas
+        x, y = canvas.scale(block.pos).tuple()
+
+        if not self.checkblock(block):
+            self.delete()
+            return
+
+        r = blockR * canvas.viewzoom / 2
+        fontsize = max(round(font_size*canvas.viewzoom), 1)
+        text = block.getSub()
+
+        canvas.master.itemconfig(
+            self.id,
+            text=text,
+            anchor='w',
+            font="Consolas "+str(fontsize),
+        )
+        canvas.master.coords(self.id, *[x + 1.5 * r, y - fontsize, ])
 
 
 
 class Canvas:
     def __init__(self, app, master=None):
         self.app = app
-
-        self.ids = {
-            'blocks': {},
-            'links': {},
-            'texts': {},
-            'images': {},
-        }
 
         self.master = master
         self.viewpos = Point(0, 0)
@@ -48,48 +203,57 @@ class Canvas:
         self.touch = None
         self.link_creation = None
 
+        self.objects = set()
+        self.cache = Cache()
+
+
     def redraw(self, SF):
-        # Очистка/Cleaning
-        self.ids = {
-            'blocks': {},
-            'links': {},
-            'texts': {},
-            'images': {},
-        }
         try:
-            self.master.delete("all")  # TODO: убрать это и добавить изменение атрибутов существующих спрайтов.
+            self.master.delete("all")
         except Exception:
             print('Cannot delete all figures')
 
         self.draw(SF)
 
-
     def draw(self, SF):
-        tag_name = self.tag_name = "polygon"
-        self.master.tag_bind(tag_name, "<Enter>", lambda event: self.master.config(cursor="hand2"))
-        self.master.tag_bind(tag_name, "<Leave>", lambda event: self.master.config(cursor=""))
+        # tag_name = self.tag_name = "polygon"
+        # self.master.tag_bind(tag_name, "<Enter>",
+        #                      lambda event: self.master.config(cursor="hand2"))
+        # self.master.tag_bind(tag_name, "<Leave>",
+        #                      lambda event: self.master.config(cursor=""))
         """Рисует холст (блоки + линки)/ drawing canvas (blocks + links)"""
+        tset = set()
+        for obj in self.objects:
+            if not obj.deleted:
+                tset |= {obj}
+            else:
+                obj.delete()
 
-        self.drawhandledblock()
+        self.objects = tset
+
 
         # Линки/ Links
         for block_id, block in SF.object_ids.items():
             for child_id in block.childs:
                 if child_id in SF.object_ids:
-                    self.draw_link(block, SF.object_ids[child_id])
+                    self.objects |= {DrawableLink(self, block, SF.object_ids[child_id])}
                 else:
                     print(f'Warning: [Canvas.draw] unknown block id: {child}')
+            self.objects |= {DrawableBlock(self, block)}
+            self.objects |= {DrawableText(self, block)}
 
         if self.link_creation:
-            self.draw_link(self.handling, self.link_creation, creating=1)
+            # костыль для недоблока
+            class Temp: pass
+            obj = Temp()
+            obj.pos = self.unscale(self.link_creation)
+            obj.classname = 'creating'
+            obj.id = -1
+            self.objects |= {DrawableLink(self, self.handling, obj)}
 
-        # Блоки/Blocks
-        for block_id, block in SF.object_ids.items():
-            self.draw_block(block)
 
-        # Подписи/Subscription
-        for block_id, block in SF.object_ids.items():
-            self.draw_block_text(block)
+        for obj in self.objects:
+            obj.update()
 
 
     def scale(self, pos):
@@ -100,136 +264,6 @@ class Canvas:
         """положение на экране -> положение на холсте/ placement on screen -> placement on canvas"""
         return pos * (1 / self.viewzoom) + self.viewpos
 
-    def draw_block(self, block, chosen=0):
-        """Рисует блок/ Drawing block"""
-        x, y = self.scale(block.pos).tuple()
-        r = blockR * self.viewzoom
-
-        ct = block.classname
-        if ct in drawColors:
-            color = drawColors[ct]
-        else:
-            color = drawColors['undefined']
-
-
-        objid = block.id
-        if not objid in self.ids['blocks'] or 1:
-            image = Image.open(f'images/{block.classname}.png')
-            image = image.resize([max(round(self.viewzoom*blockR),1), max(round(self.viewzoom*blockR),1)]
-                , resample=Image.BOX
-            )
-            photo = ImageTk.PhotoImage(image)
-            tkimage = self.master.create_image(x, y, anchor='center',image=photo, tag=self.tag_name)
-            self.ids['blocks'][objid] = tkimage, photo
-
-    def drawhandledblock(self):
-        """Рисует блок/ Drawing block"""
-        objid = 'selected'
-        if not self.handling:
-            if objid in self.ids['blocks']:
-                self.master.itemconfig(self.ids['blocks'][objid], state='hidden')
-                # del self.ids['blocks'][objid]
-            return
-
-        x, y = self.scale(self.handling.pos).tuple()
-
-        chosen_color = drawColors['chosen']
-        r_sel = chosen_R * self.viewzoom
-
-        if not objid in self.ids['blocks']:
-            self.ids['blocks'][objid] = self.master.create_oval(0,0,0,0)
-
-        item = self.ids['blocks'][objid]
-
-        self.master.itemconfig(item,
-            fill=chosen_color,
-            state='normal',
-        )
-        self.master.coords(item, *[(x - r_sel), (y - r_sel), (x + r_sel), (y + r_sel)])
-
-
-    def draw_block_text(self, block):
-        """делает подпись блока/Making block subscription"""
-        x, y = self.scale(block.pos).tuple()
-        r = blockR * self.viewzoom
-        fontsize = max(round(font_size*self.viewzoom), 1)
-        text = block.getSub()
-
-        objid = block.id
-        if not objid in self.ids['texts']:
-            self.ids['texts'][objid] = self.master.create_text(0,0)
-
-        item = self.ids['texts'][objid]
-
-        self.master.itemconfig(item,
-            text=text,
-            anchor='w',
-            font="Consolas "+str(fontsize),
-        )
-        self.master.coords(item, *[x + 1.5 * r, y - fontsize,])
-
-
-    def draw_link(self, block, child, creating=0):
-        """Рисует линк/ Drawing link"""
-        p1 = self.scale(block.pos)
-        thickness = link_width * self.viewzoom
-        if creating:
-            p2 = child
-            color = linkColors['creating_']
-        else:
-            p2 = self.scale(child.pos)
-            left = block.classname
-            right = child.classname
-            color = linkColors['_']
-            for key in [f'{left}_{right}', f'{left}_', f'_{right}', f'_']:
-                if key in linkColors:
-                    color = linkColors[key]
-
-        if p1 == p2:
-            return
-
-        dist = p1.dist(p2)
-
-        length = arrow_length * self.viewzoom / dist
-        if not creating:
-            length *= dist / (dist - blockR * self.viewzoom * 0)
-            dif = (blockR * self.viewzoom) / dist
-            p2 += (p1 - p2) * dif
-
-
-        p3 = p2 - (p2 - p1) * length
-
-        delta = p2.copy()
-        delta -= p1
-        delta.y *= -1
-        delta.swapInPlace()
-
-        w = arrow_width * self.viewzoom
-        # нормирование/normalizing
-        n = delta.norm() * w
-        p4 = p3 + n
-        p5 = p3 - n
-
-        line_end = (p4 + p5)
-        line_end /= 2
-
-        if creating:
-            objid = 'creating'
-        else:
-            objid = f'{block.id},{child.id}'
-
-        if not objid in self.ids['links']:
-            self.ids['links'][objid] = self.master.create_line(0,0,0,0)
-
-        item = self.ids['links'][objid]
-
-        self.master.itemconfig(item,
-            fill=color,
-            width=thickness,
-            capstyle='round',
-            arrow=tk.LAST
-        )
-        self.master.coords(item, *[*p1.tuple(), *line_end.tuple()])
 
 if __name__ == "__main__":
     print("This module is not for direct call!")

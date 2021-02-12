@@ -28,8 +28,6 @@ __all__ = [
 ]
 
 
-
-
 def json_load(path: str):
     """Загружает json-объект из файла"""
     try:

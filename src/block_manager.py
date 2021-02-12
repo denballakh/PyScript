@@ -8,7 +8,7 @@ from utils import *
 linkColors = {
     "_": "#000000",
 
-    "creating_": "#ffff00",
+    "_creating": "#ffff00",
 
     # "op_":"#000000",
     # "_op":"#000000",
@@ -43,24 +43,6 @@ linkColors = {
     # "_" :"",
     # "_" :"",
 
-}
-
-# Цвета кружков блоков разного типа
-drawColors = {
-    'chosen': '#00ff00',
-    "undefined": "#00ff00",
-    'empty': '#000000',
-    "op": "#FFFFFF",
-    "if": "#F92472",
-    "else": "#C90452",
-    "for": "#FD9622",
-    "class": "#67D8EF",
-    "fun": "#A6E22B",
-    "while": "#FF0000",
-
-    'dict': 'red',
-    'dict_pair': 'yellow',
-    'dict_long_pair': 'pink',
 }
 
 

@@ -234,7 +234,7 @@ class EventHandler:
 
         clickpos = Point(click.x, click.y)
         SF_pos_old = self.unscale(clickpos)
-        self.canvas.viewzoom *= k
+        self.canvas.viewzoom = k * self.canvas.viewzoom
         self.canvas.viewzoom = min(max(self.canvas.viewzoom, canvas_minzoom), canvas_maxzoom)
         SF_pos_new = self.unscale(clickpos)
         SF_shift = SF_pos_new - SF_pos_old

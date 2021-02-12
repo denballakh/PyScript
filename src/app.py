@@ -23,5 +23,10 @@ class App:
 
         self.root.mainloop()
 
+        self.close()
+
+    def close(self):
+        logger.close()
+
 if __name__ == '__main__':
     print('This module is not for direct call!')

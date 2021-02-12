@@ -1,4 +1,3 @@
-
 __all__ = ['Point',]
 
 class Point:

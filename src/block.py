@@ -28,7 +28,7 @@ class Block:
         self.chosen = chosen
         self.shift_id = None
         # creating_type == 0 - создание нового элемента/creation of new element
-        # creating_type == 1 - парсинг элемента из файла/ parcing from file
+        # creating_type == 1 - парсинг элемента из файла/ parsing from file
         if creating_type == 1:
             self.fromDict(data)
             self.SF.object_ids[self.id] = self
@@ -188,7 +188,7 @@ class Block:
         if not desc:
             self.pos += shift
         else:
-            if shift_id != self.shift_id:
+            if shift and shift_id != self.shift_id:
                 self.pos += shift
                 self.shift_id = shift_id
                 for child in self.childs:
@@ -211,8 +211,8 @@ class Block:
         self.SF.wasEdited = True
         self.classname = newType
         self.data = {}
-        for key_, _ in getDictValByPath(allTypes, f'{self.classname}.edit').items():
-            self.data[key_] = ''
+        for key, _ in getDictValByPath(allTypes, f'{self.classname}.edit').items():
+            self.data[key] = ''
 
     def toDict(self):
         return {

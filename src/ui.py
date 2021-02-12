@@ -42,11 +42,11 @@ class UI:
             ('Build as...', lambda: self.buildAs()),
             ('Build log', lambda: app.SF.build('', 0)),
         ] + __debug__ * [
-                ('Canvas redraw', lambda: app.canvas.redraw(app.SF)),
-                ('Save log', lambda: app.SF.save('', 0)),
-                ('Console', lambda: self.openConsole()),
-                ('Hard exit', lambda: app.root.destroy()),
-            ]
+            ('Canvas redraw', lambda: app.canvas.redraw(app.SF)),
+            ('Save log', lambda: app.SF.save('', 0)),
+            ('Console', lambda: self.openConsole()),
+            ('Hard exit', lambda: app.root.destroy()),
+        ]
         root.protocol("WM_DELETE_WINDOW", lambda: self.closeWindow())
 
         placeButtons(panelFrame, panelFrameButtons)
@@ -105,8 +105,9 @@ class UI:
         canvasX.bind("<ButtonRelease-3>", eh.b3_release)
 
         canvasX.bind("<MouseWheel>", eh.wheel)  # for Windows, MacOS
-        canvasX.bind("<Button-4>", eh.wheel)  # for Linux # TODO: видимо это не работает, нужно почитать и починить
-        canvasX.bind("<Button-5>", eh.wheel)  # for Linux
+        # for Linux # TODO: видимо это не работает, нужно почитать и починить
+        canvasX.bind("<Button-4>", eh.wheel)
+        canvasX.bind("<Button-5>", eh.wheel)
 
         canvasX.bind("<Control-3>", eh.b3_ctrl)
         canvasX.bind("<Control-ButtonRelease-3>", eh.b3_ctrl_release)
@@ -185,7 +186,11 @@ class UI:
             del app.SF
             return 1
         else:
-            ans = tk.messagebox.askyesnocancel("Save?", "Save changes?", parent=root)
+            ans = tk.messagebox.askyesnocancel(
+                "Save?",
+                "Save changes?",
+                parent=root
+            )
             if ans is None:
                 return 0
             if ans == 1:
